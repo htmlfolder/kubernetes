@@ -19,6 +19,7 @@
     8  kubectl logs -f devops
     9  kubectl exec -it devops -- /bin/bash
    10  kubectl delete -f pod.yml
+
 =>One Pod With Two Container
       apiVersion: v1
       kind: pod
@@ -48,7 +49,7 @@
  kind: pod
  metadata:
          name: flipkart
-spec:
+ spec:
       containers:
         - name: webapp
           image: nginx
