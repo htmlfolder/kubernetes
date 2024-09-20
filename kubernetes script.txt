@@ -1,0 +1,138 @@
+=> One Pod With One Container 
+      apiVersion: v1
+      kind: pod
+      metadata:
+             name: devops
+      spec:
+           containers:
+                - name: signup
+                  image: ubuntu
+                  command: ["/bin/bash" "-c" "while true; do echo signup; sleep 2;done"]
+
+    1  kubectl get nodes
+    2  cat pod.yml
+    3  kubectl get pods
+    4  kubectl apply -f pod.yml
+    5  kubectl get pods -o wide
+    6  kubectl describe pod devops
+    7  kubectl get pods
+    8  kubectl logs -f devops
+    9  kubectl exec -it devops -- /bin/bash
+   10  kubectl delete -f pod.yml
+=>One Pod With Two Container
+      apiVersion: v1
+      kind: pod
+      metadata:
+             name: devops
+      spec:
+           containers:
+                - name: signup
+                  image: ubuntu
+                  command: ["/bin/bash" "-c" "while true; do echo signup; sleep 2;done"]
+                - name: login
+                  image: ubuntu
+                  command: ["/bin/bash" "-c" "while true; do echo login; sleep 2;done"]
+   
+     1  vi pod1.yml
+     2  kubectl apply -f pod1.yml
+     3  kubectl get pods
+     4  kubectl get pods -o wide
+     5  kubectl logs -f devops -c signup
+     6  kubectl logs -f devops -c login
+     7  kubectl exec -it devops -c signup -- /bin/bash
+     8  kubectl exec -it devops -c login -- /bin/bash
+     9  kubectl delete -f pod1.yml
+
+=>One Pod With One Container With The Image Name Called Nginx And Access That Container Through Pod Ip
+ apiVersion: v1
+ kind: pod
+ metadata:
+         name: flipkart
+spec:
+      containers:
+        - name: webapp
+          image: nginx
+          ports:
+            - containerPort: 80
+      1 vi pod2.yml
+      2 cat pod2.yml
+      3  kubectl apply -f pod2.yml
+      4  kubectl get pods
+      5  kubectl get pods -o wide
+      6  curl 10.44.0.1:80
+      7  kubectl log -f flipkart
+      8  kubectl logs -f flipkart
+      9  kubectl delete -f pod2.yml
+
+=>  create one pod with one container using Replicationcontroller
+   apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: flipkart
+spec:
+  replicas: 2
+  selector:
+    app: httpd
+  template:
+    metadata:
+      name: webapp
+      labels:
+        app: httpd
+    spec:
+      containers:
+        - name: signup
+          image: httpd
+          ports:
+            - containerPort: 80
+
+      1 vi rc.yml
+      2 kubectl apply rc.yml
+      3 kubectl get rc
+      4 kubectl get pods
+      5 kubectl get pods--show-labels
+      6 kubectl scale-replicas-4 rc flipkart
+      7 kubectl get pods
+      8 kubectl delete pod flipkart-q42sj
+      9 kubectl get pods
+    10 kubectl get pods-show-labels
+    11 kubectl scale-replicas-2 rc flipkart
+    12 kubectl get pods
+    13 kubectl scale-replicas-6 rc app=httpd
+    14 kubectl get pods
+    15 kubectl delete rc.yml
+
+=> Create one pod with one container using ReplicaSet
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: flipkart
+spec:
+  replicas: 2
+  selector:
+    matchExpressions:
+      - {key: myname, operator: In, values: [signup, login, logout]}
+      - {key: env, operator: NotIn, values: [proserver]}
+  template:
+    metadata:
+      name: webapp
+      labels:
+        myname: signup
+    spec:
+      containers:
+        - name: signup
+          image: ubuntu
+          command: ["/bin/bash", "-c", "while true; do echo signup; sleep 1; done"]
+
+      1 vi rs.yml
+      2 kubectl apply rs.yml
+      3 kubectl get rs
+      4 kubectl get pods
+      5 kubectl get pods--show-labels
+      6 kubectl scale replicas-5 rs flipkart
+      7 kubectl get pods
+      8 kubectl get pods wide
+      9 kubectl scale-replicas 1 rs myname=signup
+    10 kubectl scale-replicas 1 rs flipkart
+    11 kubectl get pods 54 kubectl scale replicas-1 rs flipkart
+    12 kubectl get pods
+    13 kubectl delete rs.yml
